@@ -1,5 +1,16 @@
-CREATE TABLE user
+CREATE TABLE users
 (
-    id   BIGSERIAL PRIMARY KEY
+    id   BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE profile
+(
+    id   BIGSERIAL PRIMARY KEY,
+    user_id BIGINT UNIQUE REFERENCES users (id),
+    name VARCHAR(255) NOT NULL,
+    bio TEXT NOT NULL
+);
+
+ALTER TABLE profile ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id);
