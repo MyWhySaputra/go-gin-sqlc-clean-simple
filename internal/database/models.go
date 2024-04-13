@@ -5,12 +5,12 @@
 package database
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Profile struct {
 	ID     int64
-	UserID sql.NullInt64
+	UserID pgtype.Int8
 	Name   string
 	Bio    string
 }

@@ -1,21 +1,16 @@
 package config
 
 import (
-	"context"
-	"fmt"
-	"os"
+    "context"
+    "os"
 
-	"github.com/jackc/pgx/v5"
+    "github.com/jackc/pgx/v5"
 )
 
-var DB *pgx.Conn
-
-func ConnectToDB() error {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		return fmt.Errorf("unable to connect to database: %w", err)
-	}
-
-	DB = conn
-	return nil
+func ConnectToDB() *pgx.Conn {
+    DB, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+    if err != nil {
+      panic("Failed to connect to database")
+    }
+    return DB
 }

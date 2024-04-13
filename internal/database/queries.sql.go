@@ -7,7 +7,8 @@ package database
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createProfile = `-- name: CreateProfile :one
@@ -17,13 +18,13 @@ RETURNING id, user_id, name, bio
 `
 
 type CreateProfileParams struct {
-	UserID sql.NullInt64
+	UserID pgtype.Int8
 	Name   string
 	Bio    string
 }
 
 func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (Profile, error) {
-	row := q.db.QueryRowContext(ctx, createProfile, arg.UserID, arg.Name, arg.Bio)
+	row := q.db.QueryRow(ctx, createProfile, arg.UserID, arg.Name, arg.Bio)
 	var i Profile
 	err := row.Scan(
 		&i.ID,
@@ -46,7 +47,7 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Password)
 	var i User
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
@@ -58,8 +59,8 @@ FROM profile
 WHERE user_id = $1
 `
 
-func (q *Queries) DeleteProfileByUserId(ctx context.Context, userID sql.NullInt64) error {
-	_, err := q.db.ExecContext(ctx, deleteProfileByUserId, userID)
+func (q *Queries) DeleteProfileByUserId(ctx context.Context, userID pgtype.Int8) error {
+	_, err := q.db.Exec(ctx, deleteProfileByUserId, userID)
 	return err
 }
 
@@ -70,7 +71,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -81,8 +82,8 @@ WHERE user_id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProfileByUserId(ctx context.Context, userID sql.NullInt64) (Profile, error) {
-	row := q.db.QueryRowContext(ctx, getProfileByUserId, userID)
+func (q *Queries) GetProfileByUserId(ctx context.Context, userID pgtype.Int8) (Profile, error) {
+	row := q.db.QueryRow(ctx, getProfileByUserId, userID)
 	var i Profile
 	err := row.Scan(
 		&i.ID,
@@ -101,7 +102,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
@@ -113,7 +114,7 @@ FROM profile
 `
 
 func (q *Queries) ListProfiles(ctx context.Context) ([]Profile, error) {
-	rows, err := q.db.QueryContext(ctx, listProfiles)
+	rows, err := q.db.Query(ctx, listProfiles)
 	if err != nil {
 		return nil, err
 	}
@@ -131,9 +132,6 @@ func (q *Queries) ListProfiles(ctx context.Context) ([]Profile, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -147,7 +145,7 @@ ORDER BY id
 `
 
 func (q *Queries) ListUser(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listUser)
+	rows, err := q.db.Query(ctx, listUser)
 	if err != nil {
 		return nil, err
 	}
@@ -159,9 +157,6 @@ func (q *Queries) ListUser(ctx context.Context) ([]User, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -182,11 +177,11 @@ type PartialUpdateProfileByUserIdParams struct {
 	Name       string
 	UpdateBio  bool
 	Bio        string
-	UserID     sql.NullInt64
+	UserID     pgtype.Int8
 }
 
 func (q *Queries) PartialUpdateProfileByUserId(ctx context.Context, arg PartialUpdateProfileByUserIdParams) (Profile, error) {
-	row := q.db.QueryRowContext(ctx, partialUpdateProfileByUserId,
+	row := q.db.QueryRow(ctx, partialUpdateProfileByUserId,
 		arg.UpdateName,
 		arg.Name,
 		arg.UpdateBio,
@@ -220,7 +215,7 @@ type PartialUpdateUserParams struct {
 }
 
 func (q *Queries) PartialUpdateUser(ctx context.Context, arg PartialUpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, partialUpdateUser,
+	row := q.db.QueryRow(ctx, partialUpdateUser,
 		arg.UpdateEmail,
 		arg.Email,
 		arg.UpdatePassword,
@@ -241,13 +236,13 @@ RETURNING id, user_id, name, bio
 `
 
 type UpdateProfileByUserIdParams struct {
-	UserID sql.NullInt64
+	UserID pgtype.Int8
 	Name   string
 	Bio    string
 }
 
 func (q *Queries) UpdateProfileByUserId(ctx context.Context, arg UpdateProfileByUserIdParams) (Profile, error) {
-	row := q.db.QueryRowContext(ctx, updateProfileByUserId, arg.UserID, arg.Name, arg.Bio)
+	row := q.db.QueryRow(ctx, updateProfileByUserId, arg.UserID, arg.Name, arg.Bio)
 	var i Profile
 	err := row.Scan(
 		&i.ID,
@@ -273,7 +268,7 @@ type UpdateUserParams struct {
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser, arg.ID, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.Email, arg.Password)
 	var i User
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
