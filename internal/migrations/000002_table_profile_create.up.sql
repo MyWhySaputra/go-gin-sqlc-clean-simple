@@ -4,4 +4,5 @@ CREATE TABLE IF NOT EXISTS profile (
   name VARCHAR(255) NOT NULL,
   bio TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
 );
