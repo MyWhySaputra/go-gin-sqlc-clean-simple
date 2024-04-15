@@ -34,27 +34,31 @@ func main() {
 
 	r.POST("/signup", AuthHandler.Signup)
 	r.POST("/login", AuthHandler.Login)
-	r.GET("/validate", middlewares.RequireAuth, AuthHandler.Validate)
 	r.POST("/logout", AuthHandler.Logout)
+	
+	authRoutes := r.Group("/")
+  authRoutes.Use(middlewares.RequireAuth)
+	
+	authRoutes.GET("/validate", AuthHandler.Validate)
 
 	userRepo := user.UserRepository{DB: db}
 	userUsecase := user.UserUsecase{UserRepository: userRepo}
 	userHandler := user.UserHandler{UserUsecase: userUsecase}
 
-	r.GET("/users", userHandler.ReadAll)
-	r.GET("/users/:id", userHandler.ReadById)
-	r.POST("/users:id", userHandler.Update)
-	r.DELETE("/users/:id", userHandler.Delete)
+	authRoutes.GET("/users", userHandler.ReadAll)
+	authRoutes.GET("/users/:id", userHandler.ReadById)
+	authRoutes.PUT("/users/:id", userHandler.Update)
+	authRoutes.DELETE("/users/:id", userHandler.Delete)
 
 	profileRepo := profile.ProfileRepository{DB: db}
 	profileUsecase := profile.ProfileUsecase{ProfileRepository: profileRepo}
 	profileHandler := profile.ProfileHandler{ProfileUsecase: profileUsecase}
 
-	r.POST("/profiles", middlewares.RequireAuth, profileHandler.Create)
-	r.GET("/profiles", middlewares.RequireAuth, profileHandler.ReadById)
-	r.GET("/profiles", middlewares.RequireAuth, profileHandler.ReadAll)
-	r.PUT("/profiles", middlewares.RequireAuth, profileHandler.Update)
-	r.DELETE("/profiles/:id", middlewares.RequireAuth, profileHandler.Delete)
+	authRoutes.POST("/profiles", profileHandler.Create)
+	authRoutes.GET("/profiles", profileHandler.ReadById)
+	authRoutes.GET("/profiles/all", profileHandler.ReadAll)
+	authRoutes.PUT("/profiles", profileHandler.Update)
+	authRoutes.DELETE("/profiles/:id", profileHandler.Delete)
 
 	fmt.Println("starting web server at localhost:", PORT)
 	err := r.Run(":" + PORT)

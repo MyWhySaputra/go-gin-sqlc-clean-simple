@@ -15,6 +15,10 @@ type ProfileHandler struct {
 }
 
 func (h ProfileHandler) Create(c *gin.Context) {
+	token, _ := c.Get("user")
+	if token == nil {
+		return
+	}
 
 	var request ProfileResponse
 	if err := c.Bind(&request); err != nil {
@@ -25,8 +29,10 @@ func (h ProfileHandler) Create(c *gin.Context) {
 	user, _ := c.Get("user")
 	userModel := user.(database.User)
 
+	intUser := pgtype.Int8{Int64: userModel.ID,Valid: true}
+
 	req := database.CreateProfileParams{
-		UserID:  pgtype.Int8{Int64: userModel.ID},
+		UserID:  intUser,
 		Name:    request.Name,
 		Bio:     request.Bio,
 	}
@@ -40,10 +46,15 @@ func (h ProfileHandler) Create(c *gin.Context) {
 }
 
 func (h ProfileHandler) ReadById(c *gin.Context) {
+	token, _ := c.Get("user")
+	if token == nil {
+		return
+	}
+
 	user, _ := c.Get("user")
 	userModel := user.(database.User)
 
-	UserID := pgtype.Int8{Int64: userModel.ID}
+	UserID := pgtype.Int8{Int64: userModel.ID, Valid: true}
 
 	profile, err := h.ProfileUsecase.ReadById(UserID)
 	if err != nil {
@@ -54,6 +65,11 @@ func (h ProfileHandler) ReadById(c *gin.Context) {
 }
 
 func (h ProfileHandler) ReadAll(c *gin.Context) {
+	token, _ := c.Get("user")
+	if token == nil {
+		return
+	}
+
 	profiles, err := h.ProfileUsecase.ReadAll()
 	if err != nil {
 		utils.HandleError(c, http.StatusInternalServerError, err.Error())
@@ -74,6 +90,11 @@ func (h ProfileHandler) ReadAll(c *gin.Context) {
 }
 
 func (h ProfileHandler) Update(c *gin.Context) {
+	token, _ := c.Get("user")
+	if token == nil {
+		return
+	}
+
 	var request ProfileResponse
 	if err := c.Bind(&request); err != nil {
 		utils.HandleError(c, http.StatusBadRequest, err.Error())
@@ -83,7 +104,7 @@ func (h ProfileHandler) Update(c *gin.Context) {
 	userModel := user.(database.User)
 
 	req := database.UpdateProfileByUserIdParams{
-		UserID:  pgtype.Int8{Int64: userModel.ID},
+		UserID:  pgtype.Int8{Int64: userModel.ID, Valid: true},
 		Name:    request.Name,
 		Bio:     request.Bio,
 	}
@@ -97,6 +118,11 @@ func (h ProfileHandler) Update(c *gin.Context) {
 }
 
 func (h ProfileHandler) Delete(c *gin.Context) {
+	token, _ := c.Get("user")
+	if token == nil {
+		return
+	}
+	
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -109,7 +135,7 @@ func (h ProfileHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	id8 := pgtype.Int8{Int64: int64(id)}
+	id8 := pgtype.Int8{Int64: int64(id), Valid: true}
 
 	_, err = h.ProfileUsecase.ReadById(id8)
 	if err != nil {

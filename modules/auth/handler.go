@@ -81,7 +81,7 @@ func (h AuthHandler) Login(c *gin.Context) {
 func (h AuthHandler) Validate(c *gin.Context) {
 	user, _ := c.Get("user")
 
-	userModel := user.(authResponse)
+	userModel := user.(database.User)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "You are logged in",
