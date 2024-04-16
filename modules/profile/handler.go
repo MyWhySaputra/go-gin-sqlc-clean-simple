@@ -15,11 +15,6 @@ type ProfileHandler struct {
 }
 
 func (h ProfileHandler) Create(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	var request ProfileResponse
 	if err := c.Bind(&request); err != nil {
 		utils.HandleError(c, http.StatusBadRequest, err.Error())
@@ -46,11 +41,6 @@ func (h ProfileHandler) Create(c *gin.Context) {
 }
 
 func (h ProfileHandler) ReadById(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	user, _ := c.Get("user")
 	userModel := user.(database.User)
 
@@ -65,11 +55,6 @@ func (h ProfileHandler) ReadById(c *gin.Context) {
 }
 
 func (h ProfileHandler) ReadAll(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	profiles, err := h.ProfileUsecase.ReadAll()
 	if err != nil {
 		utils.HandleError(c, http.StatusInternalServerError, err.Error())
@@ -90,11 +75,6 @@ func (h ProfileHandler) ReadAll(c *gin.Context) {
 }
 
 func (h ProfileHandler) Update(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	var request ProfileResponse
 	if err := c.Bind(&request); err != nil {
 		utils.HandleError(c, http.StatusBadRequest, err.Error())
@@ -118,11 +98,6 @@ func (h ProfileHandler) Update(c *gin.Context) {
 }
 
 func (h ProfileHandler) Delete(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-	
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

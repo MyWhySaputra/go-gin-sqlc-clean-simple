@@ -15,11 +15,6 @@ type UserHandler struct {
 }
 
 func (h UserHandler) ReadAll(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	users, err := h.UserUsecase.ReadAll()
 	if err != nil {
 		utils.HandleError(c, http.StatusInternalServerError, err.Error())
@@ -40,11 +35,6 @@ func (h UserHandler) ReadAll(c *gin.Context) {
 }
 
 func (h UserHandler) ReadById(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -74,11 +64,6 @@ func (h UserHandler) ReadById(c *gin.Context) {
 }
 
 func (h UserHandler) Update(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -131,11 +116,6 @@ func (h UserHandler) Update(c *gin.Context) {
 }
 
 func (h UserHandler) Delete(c *gin.Context) {
-	token, _ := c.Get("user")
-	if token == nil {
-		return
-	}
-	
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

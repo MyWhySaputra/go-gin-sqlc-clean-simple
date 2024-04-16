@@ -45,7 +45,7 @@ func main() {
 	userUsecase := user.UserUsecase{UserRepository: userRepo}
 	userHandler := user.UserHandler{UserUsecase: userUsecase}
 
-	authRoutes.GET("/users", userHandler.ReadAll)
+	authRoutes.GET("/users",  userHandler.ReadAll)
 	authRoutes.GET("/users/:id", userHandler.ReadById)
 	authRoutes.PUT("/users/:id", userHandler.Update)
 	authRoutes.DELETE("/users/:id", userHandler.Delete)

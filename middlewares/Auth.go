@@ -18,6 +18,7 @@ func RequireAuth(c *gin.Context) {
     tokenString, err := c.Cookie("Authorization")
     if err != nil {
         utils.HandleError(c, http.StatusUnauthorized, "Unauthorized: Token not found")
+        c.Abort()
         return
     }
 
@@ -29,18 +30,21 @@ func RequireAuth(c *gin.Context) {
     })
     if err != nil {
         utils.HandleError(c, http.StatusUnauthorized, fmt.Sprintf("Unauthorized: %v", err))
+        c.Abort()
         return
     }
 
     if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
         if exp, ok := claims["exp"].(float64); ok && float64(time.Now().Unix()) > exp {
             utils.HandleError(c, http.StatusUnauthorized, "Unauthorized: Token expired")
+            c.Abort()
             return
         }
 
         id64, ok := claims["id"].(float64)
         if !ok {
             utils.HandleError(c, http.StatusInternalServerError, "Error parsing user ID")
+            c.Abort()
             return
         }
 
@@ -48,11 +52,13 @@ func RequireAuth(c *gin.Context) {
         user, err := database.New(db).GetUser(context.Background(), int64(id64))
         if err != nil {
             utils.HandleError(c, http.StatusInternalServerError, fmt.Sprintf("Error fetching user: %v", err))
+            c.Abort()
             return
         }
 
         if user.ID == 0 {
             utils.HandleError(c, http.StatusUnauthorized, "Unauthorized: User not found")
+            c.Abort()
             return
         }
 
@@ -60,6 +66,7 @@ func RequireAuth(c *gin.Context) {
         c.Next()
     } else {
         utils.HandleError(c, http.StatusUnauthorized, "Unauthorized: Invalid token")
+        c.Abort()
         return
     }
 }
