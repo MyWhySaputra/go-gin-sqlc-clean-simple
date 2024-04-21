@@ -14,6 +14,12 @@ type UserHandler struct {
 	UserUsecase UserUsecase
 }
 
+// CreateTags 		user
+// @Summary 			Get all users
+// @Description 	Get all users
+// @tags 					tags
+// @success 			200 {object} []UserResponse
+// @Router 				/users [get]
 func (h UserHandler) ReadAll(c *gin.Context) {
 	users, err := h.UserUsecase.ReadAll()
 	if err != nil {

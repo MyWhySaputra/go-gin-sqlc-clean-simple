@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/MyWhySaputra/go-gin-sqlc-clean-simple/docs"
+
 	"github.com/MyWhySaputra/go-gin-sqlc-clean-simple/middlewares"
 	"github.com/MyWhySaputra/go-gin-sqlc-clean-simple/modules/auth"
 	"github.com/MyWhySaputra/go-gin-sqlc-clean-simple/modules/user"
@@ -12,12 +14,20 @@ import (
 
 	"github.com/MyWhySaputra/go-gin-sqlc-clean-simple/config"
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
 )
 
 func init() {
 	config.LoadEnvVariables()
 }
 
+// @title  Tag service API
+// @version 1.0
+// @description This is an auto-generated API Docs.
+
+// @host localhost:8080
+// @BasePath /
 func main() {
 	PORT := os.Getenv("PORT")
 
@@ -31,6 +41,10 @@ func main() {
 	AuthRepo := auth.AuthRepository{DB: db}
 	AuthUsecase := auth.AuthUsecase{AuthRepository: AuthRepo}
 	AuthHandler := auth.AuthHandler{AuthUsecase: AuthUsecase}
+
+	// add swagger
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/signup", AuthHandler.Signup)
 	r.POST("/login", AuthHandler.Login)
